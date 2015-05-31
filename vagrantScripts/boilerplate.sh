@@ -9,4 +9,4 @@ sudo apt-get update
 sudo apt-get -y dist-upgrade
 
 # Install utility software
-sudo apt-get install -y screen vim
+sudo apt-get install -y screen vim python-pip
