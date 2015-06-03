@@ -4,7 +4,7 @@
 scriptDirectory = "vagrantScripts/"
 boilerplateScript = "boilerplate.sh"
 nodes = [
-  { :hostname => 'db',          :ip => '192.168.5.100' },
+  { :hostname => 'db',          :ip => '192.168.5.100', :forwardedPorts => [ 27017 ] },
   { :hostname => 'actor',       :ip => '192.168.5.101' },
   { :hostname => 'scraper1',    :ip => '192.168.5.102' },
 ]
@@ -19,8 +19,14 @@ Vagrant.configure("2") do |config|
       nodeconfig.vm.box = box
       nodeconfig.vm.hostname = node[:hostname] + ".box"
       nodeconfig.vm.network :private_network, ip: node[:ip]
-      nodeconfig.vm.provision "shell", path: scriptDirectory+boilerplateScript
-      nodeconfig.vm.provision "shell", path: scriptDirectory+node[:hostname]+'.sh'
+      nodeconfig.vm.provision "shell", path: scriptDirectory + boilerplateScript
+      nodeconfig.vm.provision "shell", path: scriptDirectory + node[:hostname] + '.sh'
+
+      if node[:forwardedPorts]
+        node[:forwardedPorts].each do |port|
+          nodeconfig.vm.network "forwarded_port", guest: port, host: port
+        end
+      end
 
       memory = node[:ram] ? node[:ram] : 256;
       nodeconfig.vm.provider :virtualbox do |vb|
