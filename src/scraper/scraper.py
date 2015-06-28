@@ -7,6 +7,7 @@ from pymongo import MongoClient
 import pymongo
 import riotwatcher as rw
 from riotwatcher import RiotWatcher
+from riotwatcher import LolException
 import time
 import progressbar
 from optparse import OptionParser
@@ -94,24 +95,27 @@ def query_summoner(summoner_id):
     print "query summoner"
     # get the basic information for that summoner
     wait_for_request()
-    summoner_info = watcher.get_summoner( _id = summoner_id )
-    db_summoners_table.push(summoner_info)
-    
-    # get the match history for that summoner
-    # TO DO: scrape more matches per summoner
-    wait_for_request()
-    match_history = watcher.get_match_history(summoner_id, 
-                                              region=REGION, 
-                                              champion_ids = None, 
-                                              ranked_queues=rw.solo_queue,
-                                              begin_index=None,
-                                              end_index=None)
-    
-    # get the matches in that history and push them onto the queue
-    match_ids = map(lambda x: x["matchId"], match_history["matches"])
-    for match_id in match_ids:
-        if not db_games_table.get({"_id":match_id}):
-            game_queue.append(match_id)
+    try:
+        summoner_info = watcher.get_summoner( _id = summoner_id )
+        db_summoners_table.push(summoner_info)
+        
+        # get the match history for that summoner
+        # TO DO: scrape more matches per summoner
+        wait_for_request()
+        match_history = watcher.get_match_history(summoner_id, 
+                                                  region=REGION, 
+                                                  champion_ids = None, 
+                                                  ranked_queues=rw.solo_queue,
+                                                  begin_index=None,
+                                                  end_index=None)
+        
+        # get the matches in that history and push them onto the queue
+        match_ids = map(lambda x: x["matchId"], match_history["matches"])
+        for match_id in match_ids:
+            if not db_games_table.get({"_id":match_id}):
+                game_queue.append(match_id)
+    except LolException as error:
+        print "ERROR: ", error.error
         
         
     
@@ -119,18 +123,23 @@ def scrape_game(match_id):
     print "scraping game"
     # get match data using riot api
     wait_for_request()
-    match_data = watcher.get_match(match_id, region=REGION, include_timeline=True)
-    # add in _id field
-    match_data["_id"] = match_data["matchId"]
+    try:
+        match_data = watcher.get_match(match_id, region=REGION, include_timeline=True)
+        # add in _id field
+        match_data["_id"] = match_data["matchId"]
+        
+        
+        # push the game data to the database
+        db_games_table.push(match_data)
+        
+        # find summoners in the match and push them to the queue
+        player_ids = map(lambda x: x["player"]["summonerId"], match_data["participantIdentities"])
+        for player_id in player_ids:
+            db_summoner_queue.push(player_id)
+
+    except LolException as error:
+        print "ERROR: ", error.error
     
-    
-    # push the game data to the database
-    db_games_table.push(match_data)
-    
-    # find summoners in the match and push them to the queue
-    player_ids = map(lambda x: x["player"]["summonerId"], match_data["participantIdentities"])
-    for player_id in player_ids:
-        db_summoner_queue.push(player_id)
 
 # In[72]:
 parser = OptionParser()
