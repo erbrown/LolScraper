@@ -7,7 +7,7 @@ from pymongo import MongoClient
 import pymongo
 import riotwatcher as rw
 from riotwatcher import RiotWatcher
-from riotwatcher import LolException
+from riotwatcher import LoLException
 import time
 import progressbar
 from optparse import OptionParser
@@ -114,7 +114,7 @@ def query_summoner(summoner_id):
         for match_id in match_ids:
             if not db_games_table.get({"_id":match_id}):
                 game_queue.append(match_id)
-    except LolException as error:
+    except LoLException as error:
         print "ERROR: ", error.error
         
         
@@ -137,7 +137,7 @@ def scrape_game(match_id):
         for player_id in player_ids:
             db_summoner_queue.push(player_id)
 
-    except LolException as error:
+    except LoLException as error:
         print "ERROR: ", error.error
     
 
