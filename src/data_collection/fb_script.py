@@ -1,4 +1,4 @@
-from pymongo import Code
+from pymongo.code import Code
 import pymongo
 import json
 
