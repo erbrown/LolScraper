@@ -16,9 +16,7 @@ function fbMap() {
 				info.y = lol_event.position.y;
 				info.timestamp = lol_event.timestamp;
 				if(lol_event.killerId != null && lol_event.killerId >= 1 && lol_event.killerId <= 10) {
-				    info.killer = game.participants[lol_event.killerId-1].championId;
-				} else {
-				    info.killer = - lol_event.killerId;
+					info.killer = game.participants[lol_event.killerId-1].championId;
 				}
 				info.victim = game.participants[lol_event.victimId-1].championId;
 				emit(game.matchId, info);

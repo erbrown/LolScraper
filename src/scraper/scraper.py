@@ -25,7 +25,20 @@ QUEUE_NAME = "summoner_queue"
 URL = "192.168.5.100"
 REGION = rw.NORTH_AMERICA
 
+BRONZE_QUEUE = "bronze_summoners"
+SILVER_QUEUE = "silver_summoners"
+GOLD_QUEUE = "gold_summoners"
+PLAT_QUEUE = "plat_summoners"
+DIAMOND_QUEUE = "diamond_summoners" 
+PRO_QUEUE = "master/challenger_summoners"
 
+BRONZE = "BRONZE"
+SILVER = "SILVER"
+GOLD = "GOLD"
+PLAT = "PLAT"
+DIAMOND = "DIAMOND"
+MASTER = "MASTER"
+CHALLENGER = "CHALLENGER"
 
 # frodo621 key: 
 # 45fbe47f-84f1-43b6-9394-9f433a23d522
@@ -54,10 +67,19 @@ class MongoDBQueue:
             return True
         return False
         #return self.connection[self.db].command("insert", self.collection, doc)
-        
+
 db_summoner_queue = MongoDBQueue(QUEUES, SUMMONER_QUEUE)
 db_game_queue = MongoDBQueue(QUEUES, GAME_QUEUE)
-    
+
+db_tier_queues = {
+    BRONZE:   MongoDBQueue(QUEUES, BRONZE_QUEUE),
+    SILVER:   MongoDBQueue(QUEUES, SILVER_QUEUE),
+    GOLD:     MongoDBQueue(QUEUES, GOLD_QUEUE),
+    PLAT:     MongoDBQueue(QUEUES, PLAT_QUEUE)
+    DIAMOND:  MongoDBQueue(QUEUES, DIAMOND_QUEUE),
+    MASTER:     MongoDBQueue(QUEUES, PRO_QUEUE),
+    CHALLENGER: MongoDBQueue(QUEUES, PRO_QUEUE)
+}  
 
 
 # In[136]:
@@ -133,7 +155,9 @@ def scrape_game(match_id):
         db_games_table.push(match_data)
         
         # find summoners in the match and push them to the queue
-        player_ids = map(lambda x: x["player"]["summonerId"], match_data["participantIdentities"])
+        player_ids = map(lambda x: (x["player"]["summonerId"], x["participantId"]) , match_data["participantIdentities"])
+        tiers = map(lambda x: (x["participantId"], x["highestAchievedSeasonTier"]) , match_data["participants"])
+        summoner_tuples = [ player_ids[k] , tiers[k]) for k in player_ids ])
         for player_id in player_ids:
             db_summoner_queue.push(player_id)
 
@@ -165,8 +189,6 @@ else:
 watcher = RiotWatcher(key)
 
 
-# In[144]:
-
 game_queue = []
 summoner_queue = []
 games_scraped = 0
@@ -183,17 +205,4 @@ while games_scraped < target_num:
         
 
 
-# In[90]:
-
-game_queue
-
-
-# In[116]:
-
 print db_summoner_queue.queue.find_one({"id":23376539})
-
-
-# In[ ]:
-
-
-
