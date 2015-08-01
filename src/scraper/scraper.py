@@ -75,7 +75,7 @@ db_tier_queues = {
     BRONZE:   MongoDBQueue(QUEUES, BRONZE_QUEUE),
     SILVER:   MongoDBQueue(QUEUES, SILVER_QUEUE),
     GOLD:     MongoDBQueue(QUEUES, GOLD_QUEUE),
-    PLAT:     MongoDBQueue(QUEUES, PLAT_QUEUE)
+    PLAT:     MongoDBQueue(QUEUES, PLAT_QUEUE),
     DIAMOND:  MongoDBQueue(QUEUES, DIAMOND_QUEUE),
     MASTER:     MongoDBQueue(QUEUES, PRO_QUEUE),
     CHALLENGER: MongoDBQueue(QUEUES, PRO_QUEUE)
@@ -111,7 +111,7 @@ def wait_for_request():
 def get_summoners_from_queue(num, queue):
     # replace with a single query
     for i in range(0,num):
-        queue.append(db_summoner_queue.pop())
+        summoner_queue.append(queue.pop())
     
 def query_summoner(summoner_id):
     print "query summoner"
