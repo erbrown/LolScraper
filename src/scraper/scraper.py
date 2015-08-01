@@ -175,9 +175,10 @@ parser.add_option("-g", "--games", dest="games", default = 10000)
 if(options.seedfile):
 	with open(options.seedfile) as f:
 		seeds = json.load(f)
+        print seeds
         for tier in seeds.keys():
             for sum_id in seeds[tier]:
-                db_summoner_queue.push(sum_id)
+                db_tier_queues[tier].push(sum_id)
 
 
 target_num = int(options.games)
