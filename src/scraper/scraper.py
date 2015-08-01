@@ -75,7 +75,7 @@ db_tier_queues = {
     BRONZE:   MongoDBQueue(QUEUES, BRONZE_QUEUE),
     SILVER:   MongoDBQueue(QUEUES, SILVER_QUEUE),
     GOLD:     MongoDBQueue(QUEUES, GOLD_QUEUE),
-    PLAT:     MongoDBQueue(QUEUES, PLAT_QUEUE)
+    PLAT:     MongoDBQueue(QUEUES, PLAT_QUEUE),
     DIAMOND:  MongoDBQueue(QUEUES, DIAMOND_QUEUE),
     MASTER:     MongoDBQueue(QUEUES, PRO_QUEUE),
     CHALLENGER: MongoDBQueue(QUEUES, PRO_QUEUE)
@@ -175,8 +175,9 @@ parser.add_option("-g", "--games", dest="games", default = 10000)
 if(options.seedfile):
 	with open(options.seedfile) as f:
 		seeds = json.load(f)
-		for sum_id in seeds:
-			db_summoner_queue.push(sum_id)
+            for tier in seeds.keys():
+                for sum_id in seeds[tier]:
+                    db_summoner_queue.push(sum_id)
 
 
 target_num = int(options.games)
@@ -193,10 +194,12 @@ game_queue = []
 summoner_queue = []
 games_scraped = 0
 
+tier = 0
 while games_scraped < target_num:
-    tier = 0
     if len(summoner_queue) == 0 and len(game_queue) == 0:
-        get_summoners_from_queue(1, db_tier_queues[db_tier_queues.keys()[tier]])
+        next_queue = db_tier_queues[db_tier_queues.keys()[tier]]
+        print next_queue, db_tier_queues.keys()[tier]
+        get_summoners_from_queue(1, next_queue)
         tier = (tier+1)%6
     if len(game_queue) == 0:
         query_summoner(int(summoner_queue.pop()))
@@ -205,6 +208,3 @@ while games_scraped < target_num:
         games_scraped += 1
         print games_scraped
         
-
-
-print db_summoner_queue.queue.find_one({"id":23376539})
