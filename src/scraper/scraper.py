@@ -108,10 +108,10 @@ def wait_for_request():
     while not watcher.can_make_request():
         time.sleep(0.1)
 
-def get_summoners_from_queue(num):
+def get_summoners_from_queue(num, queue):
     # replace with a single query
     for i in range(0,num):
-        summoner_queue.append(db_summoner_queue.pop())
+        queue.append(db_summoner_queue.pop())
     
 def query_summoner(summoner_id):
     print "query summoner"
@@ -156,10 +156,10 @@ def scrape_game(match_id):
         
         # find summoners in the match and push them to the queue
         player_ids = map(lambda x: (x["player"]["summonerId"], x["participantId"]) , match_data["participantIdentities"])
-        tiers = map(lambda x: (x["participantId"], x["highestAchievedSeasonTier"]) , match_data["participants"])
-        summoner_tuples = [ player_ids[k] , tiers[k]) for k in player_ids ])
-        for player_id in player_ids:
-            db_summoner_queue.push(player_id)
+        tiers = {x["participantId"]: x["highestAchievedSeasonTier"] for x in match_data['participants']}
+        for sum_id, part_id in player_ids:
+            queue = db_tier_queues[tiers[part_id]]
+            queue.push(sum_id)
 
     except LoLException as error:
         print "ERROR: ", error.error
@@ -194,8 +194,10 @@ summoner_queue = []
 games_scraped = 0
 
 while games_scraped < target_num:
+    tier = 0
     if len(summoner_queue) == 0 and len(game_queue) == 0:
-        get_summoners_from_queue(1)
+        get_summoners_from_queue(1, db_tier_queues[db_tier_queues.keys()[tier]])
+        tier = (tier+1)%6
     if len(game_queue) == 0:
         query_summoner(int(summoner_queue.pop()))
     if len(game_queue) > 0:
