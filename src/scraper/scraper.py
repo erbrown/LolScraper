@@ -111,7 +111,7 @@ def wait_for_request():
 def get_summoners_from_queue(num, queue):
     # replace with a single query
     for i in range(0,num):
-        queue.append(db_summoner_queue.pop())
+        summoner_queue.append(queue.pop())
     
 def query_summoner(summoner_id):
     print "query summoner"
