@@ -37,7 +37,8 @@ rw = RiotWatcher(key)
 
 for patch in ["5.11", "5.14"]:
     for region in ["BR","EUNE","EUW","KR","LAN","LAS","NA","OCE","RU","TR"]:
-        matches = json.load(patch + "/RANKED_SOLO/" + region + ".json")
+        data = open(patch + "/RANKED_SOLO/" + region + ".json")
+        matches = json.load(data)
         collection  = MongoDBSafe(CHALLENGE_DB, patch + "_" + region, url=URL)
         region_var = region.lower()
 
