@@ -25,6 +25,7 @@ QUEUE_NAME = "summoner_queue"
 URL = "192.168.5.100"
 REGION = rw.NORTH_AMERICA
 
+UNRANKED_QUEUE = "unranked_summoners"
 BRONZE_QUEUE = "bronze_summoners"
 SILVER_QUEUE = "silver_summoners"
 GOLD_QUEUE = "gold_summoners"
@@ -32,16 +33,18 @@ PLAT_QUEUE = "plat_summoners"
 DIAMOND_QUEUE = "diamond_summoners" 
 PRO_QUEUE = "master/challenger_summoners"
 
+UNRANKED = "UNRANKED"
 BRONZE = "BRONZE"
 SILVER = "SILVER"
 GOLD = "GOLD"
-PLAT = "PLAT"
+PLAT = "PLATINUM"
 DIAMOND = "DIAMOND"
 MASTER = "MASTER"
 CHALLENGER = "CHALLENGER"
 
 # frodo621 key: 
-# 45fbe47f-84f1-43b6-9394-9f433a23d522
+key = "45fbe47f-84f1-43b6-9394-9f433a23d522"
+
 
 
 # In[143]:
@@ -78,7 +81,8 @@ db_tier_queues = {
     PLAT:     MongoDBQueue(QUEUES, PLAT_QUEUE),
     DIAMOND:  MongoDBQueue(QUEUES, DIAMOND_QUEUE),
     MASTER:     MongoDBQueue(QUEUES, PRO_QUEUE),
-    CHALLENGER: MongoDBQueue(QUEUES, PRO_QUEUE)
+    CHALLENGER: MongoDBQueue(QUEUES, PRO_QUEUE),
+    UNRANKED: MongoDBQueue(QUEUES, BRONZE_QUEUE)
 }  
 
 
@@ -183,10 +187,11 @@ if(options.seedfile):
 
 target_num = int(options.games)
 
-if(options.key):
-	key = options.key
-else:
-	key = raw_input("Please enter your Riot key: ")
+#if(options.key):
+#	key = open(options.key).readlines()[0]
+#	print key
+#else:
+#	key = raw_input("Please enter your Riot key: ")
 
 watcher = RiotWatcher(key)
 
