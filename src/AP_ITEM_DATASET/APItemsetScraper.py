@@ -8,7 +8,7 @@ import progressbar
 from optparse import OptionParser
 import json
 
-URL = "192.168.5.100"
+URL = "98.216.209.75"
 CHALLENGE_DB = "API_Challenge"
 
 
@@ -29,11 +29,12 @@ class MongoDBSafe:
     def get(self, doc):
         return self.connection[self.db][self.collection].find_one(doc)
 
-def wait_for_request():
-    while not watcher.can_make_request():
-        time.sleep(0.1)
+watcher = RiotWatcher(key)
 
-rw = RiotWatcher(key)
+def wait_for_request():
+	while not watcher.can_make_request():
+		time.sleep(0.1)
+
 
 for patch in ["5.11", "5.14"]:
     for region in ["BR","EUNE","EUW","KR","LAN","LAS","NA","OCE","RU","TR"]:
@@ -41,14 +42,17 @@ for patch in ["5.11", "5.14"]:
         matches = json.load(data)
         collection  = MongoDBSafe(CHALLENGE_DB, patch + "_" + region, url=URL)
         region_var = region.lower()
-
+	if collection.connection[collection.db][collection.collection].count() == 10000:
+		matches = []
         for match in matches:
+	    print(match)
             if not collection.get({"_id":match}):
                 wait_for_request()
+		print("querying match")
                 try:
                     match_data = watcher.get_match(match, region=region_var, include_timeline=True)
                     # add in _id field
                     match_data["_id"] = match_data["matchId"]
                     collection.push(match_data)
-                except LolException as error:
+                except LoLException as error:
                     print "ERROR: ", error.error
