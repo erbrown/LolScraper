@@ -8,6 +8,7 @@ from riotwatcher import RiotWatcher
 from collections import defaultdict
 from sklearn.decomposition import PCA
 import numpy as np
+from matplotlib import pyplot as plt
 
 start_time = time.time()
 
@@ -114,6 +115,7 @@ with open("pca_dump.json", "w") as f:
 
 print(pca.explained_variance_ratio_)
 
+plt.scatter(reduction)
 
 print time.time() - start_time, "seconds"
 
