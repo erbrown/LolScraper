@@ -67,7 +67,7 @@ watcher = RiotWatcher(key)
 
 
 final_data = defaultdict(lambda: [0]*len(AP_ITEMS))
-games = {}
+games = defaultdict(lambda: 0)
 
 for patch in ["5.11", "5.14"]:
     for region in ["BR"]: #,"EUNE","EUW","KR","LAN","LAS","NA","OCE","RU","TR"]:
@@ -80,29 +80,41 @@ for patch in ["5.11", "5.14"]:
 			k = e['_id']
 			if k['item'] in AP_ITEMS.keys():
 				index = AP_ITEMS.keys().index(int(k['item']))
-				final_data[( k['patch'], k['region'], k['tier'], k['champ'] )] [index] += e['value']
+				final_data[( k['patch'], k['region'], k['champ'] )] [index] += e['value']
+				#final_data[( k['patch'], k['region'], k['tier'], k['champ'] )] [index] += e['value']
 
 		for c in champ_results.find():
 			k = c['_id']
-			final_data[( k['patch'], k['region'], k['tier'], k['champ'] )] = map( lambda x: float(x)/c['value'], final_data[( k['patch'], k['region'], k['tier'], k['champ'] )])
-			games[( k['patch'], k['region'], k['tier'], k['champ'] )] = c['value']
+			key = ( k['patch'], k['region'], k['champ'] )
+			#key = ( k['patch'], k['region'], k['tier'], k['champ'] )
+			games[key] += c['value']
+
+		for key in games.keys():
+			final_data[key] = map( lambda x: float(x)/games[key], final_data[key])
 
 print final_data[final_data.keys()[0]]
 
+ap_champs = {}
+for key in final_data:
+	if sum(final_data[key]) >= 1:
+		ap_champs[key] = final_data[key]
+
+print(ap_champs)
+
 pca = PCA(n_components=2)
 
-reduction = pca.fit_transform(final_data.values())
+reduction = pca.fit_transform(ap_champs.values())
 
 json_data = []
-for i in range(0,len(final_data.keys())):
-	key = final_data.keys()[i]
+for i in range(0,len(ap_champs.keys())):
+	key = ap_champs.keys()[i]
 	data = list(reduction[i])
 	num_games = games[key]
 	json_data.append( {
 		"patch":key[0],
 		"region":key[1],
-		"tier":key[2],
-		"champion":key[3],
+		#"tier":key[2],
+		"champion":key[2],
 		"coordinate":{
 			"x":data[0],
 			"y":data[1]
@@ -115,7 +127,8 @@ with open("pca_dump.json", "w") as f:
 
 print(pca.explained_variance_ratio_)
 
-plt.scatter(reduction)
+plt.scatter(map(lambda x: x[0], reduction), map(lambda x: x[1], reduction))
+plt.show()
 
 print time.time() - start_time, "seconds"
 
