@@ -48,7 +48,7 @@ for patch in ["5.11", "5.14"]:
 	    print(match)
             if not collection.get({"_id":match}):
                 wait_for_request()
-		print("querying match")
+                print("querying match")
                 try:
                     match_data = watcher.get_match(match, region=region_var, include_timeline=True)
                     # add in _id field

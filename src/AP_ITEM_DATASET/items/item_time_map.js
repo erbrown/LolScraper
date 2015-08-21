@@ -17,6 +17,8 @@ function item_time_map() {
 			lol_event = frame.events[j];
 			if(lol_event.eventType == "ITEM_PURCHASED") {
 				key = Object();
+				key.patch = game.matchVersion;
+				key.region = game.region;
 				key.item = lol_event.itemId;
 				key.champ = championIds[lol_event.participantId - 1];
 				key.minute = Math.floor(lol_event.timestamp/60000);
