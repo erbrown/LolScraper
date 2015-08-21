@@ -7,6 +7,7 @@ import riotwatcher
 from riotwatcher import RiotWatcher
 from collections import defaultdict
 from sklearn.decomposition import PCA
+from sklearn.random_projection import GaussianRandomProjection
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -101,9 +102,13 @@ for key in final_data:
 
 print(ap_champs)
 
-pca = PCA(n_components=2)
+#pca = PCA(n_components=2)
+#reduction = pca.fit_transform(ap_champs.values())
+#print(pca.explained_variance_ratio_)
 
-reduction = pca.fit_transform(ap_champs.values())
+grp = GaussianRandomProjection(2, random_state = 0)
+reduction = grp.fit_transform(ap_champs.values())
+#print( grp.explained_variance_ratio_)
 
 json_data = []
 for i in range(0,len(ap_champs.keys())):
@@ -125,7 +130,6 @@ for i in range(0,len(ap_champs.keys())):
 with open("pca_dump.json", "w") as f:
 	json.dump(json_data, f)
 
-print(pca.explained_variance_ratio_)
 
 plt.scatter(map(lambda x: x[0], reduction), map(lambda x: x[1], reduction))
 plt.show()
