@@ -43,7 +43,7 @@ for patch in ["5.11", "5.14"]:
         matches = json.load(data)
         collection  = MongoDBSafe(CHALLENGE_DB, patch + "_" + region, url=URL)
         region_var = region.lower()
-	if collection.connection[collection.db][collection.collection].count() == 10000:
+	if collection.connection[collection.db][collection.collection].count() == len(matches):
 		matches = []
         for match in matches:
 	    print(match)

@@ -16,11 +16,11 @@ function build_map() {
 			frame = game.timeline.frames[i];
 			for(var j in frame.events) {
 				lol_event = frame.events[j];
-				if(lol_event.eventType == "ITEM_PURCHASED" && lol_event.participant == player.participantId) {
-					items.push(lol_event.itemId);				
+				if(lol_event.eventType == "ITEM_PURCHASED" && lol_event.participantId == player.participantId) {
+					items.push(lol_event);				
 				}
 			}
 		}
-		emit(key, items);
+		emit(key, {"items":items});
 	}
 }

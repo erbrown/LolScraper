@@ -22,40 +22,10 @@ champ_map_js = Code(open('champs/champ_map.js', 'r').read())
 
 reduce_js = Code(open('sum_reduce.js','r').read())
 
-#3724, 3720: runeglaive
-AP_ITEMS = {3724:"Runeglaive",
-			3089:"Rabadons",
-			3720:"Runeglaive",
-			3285:"Ludens Echo",
-			3290:"Twin Shadows",
-			3092:"Frost Queens",
-			3716:"Runeglaive",
-			1056:"Doran's Ring",
-			3100:"Lich Bane",
-			3504:"Ardent Censer",
-			3708:"Runeglaive",
-			2139:"Elixer of Sorcery",
-			3146:"Hextech Gunblade",
-			3003:"Archangel's Staff",
-			3152:"Will of the Ancients",
-			3151:"Liandry's Torment",
-			3135:"Void Staff",
-			3001:"Abyssal Scepter",
-			3124:"Guinsoo's Rageblade",
-			3027:"Rod of Ages",
-			3025:"Iceborn Gauntlet",
-			3115:"Nashor's Tooth",
-			3116:"Rylais Crystal Scepter",
-			3023:"Twin Shadows",
-			3020:"Sorcerers Shoes",
-			3050:"Zekes Harbinger",
-			3041:"Mejais",
-			3174:"Athenes",
-			3158:"Ionian Boots",
-			3157:"Zhonyas",
-			3060:"Banner of Command",
-			3165:"Morellonomicon"
-		}
+with open('ap_items.json', 'r') as ap:
+	placeholder = json.load(ap.strip())
+	AP_ITEMS = {(int(k), v) for (k,v) in placeholder  }
+	print AP_ITEMS
 
 # frodo621 key: 
 key = "45fbe47f-84f1-43b6-9394-9f433a23d522"
@@ -108,7 +78,6 @@ print(ap_champs)
 
 grp = GaussianRandomProjection(2, random_state = 0)
 reduction = grp.fit_transform(ap_champs.values())
-#print( grp.explained_variance_ratio_)
 
 json_data = []
 for i in range(0,len(ap_champs.keys())):
